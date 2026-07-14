@@ -63,3 +63,6 @@ test/testdata/real_*.xlsx
 # Local development
 *.local
 .env
+
+# Claude Code local session state
+.claude/

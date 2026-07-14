@@ -85,7 +85,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 "success": False,
                 "error": "Ogiltig JSON i request body"
             }),
-            mimetype="application/json",
+            mimetype="application/json; charset=utf-8",
             status_code=400
         )
     
@@ -98,7 +98,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 "success": False,
                 "error": f"Saknade fält: {', '.join(missing)}"
             }),
-            mimetype="application/json",
+            mimetype="application/json; charset=utf-8",
             status_code=400
         )
     
@@ -174,7 +174,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 "fordelningar": fordelningar_json,
                 "statistik": statistik
             }, ensure_ascii=False),
-            mimetype="application/json",
+            mimetype="application/json; charset=utf-8",
             status_code=200
         )
         
@@ -185,6 +185,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 "success": False,
                 "error": f"Internt fel: {str(e)}"
             }),
-            mimetype="application/json",
+            mimetype="application/json; charset=utf-8",
             status_code=500
         )
