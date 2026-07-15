@@ -238,12 +238,14 @@ class Fordelningsmotor:
             # Sista utväg: ta första i gruppen
             return self.ledamoter_per_grupp[grupp][0]
         
-        # Sortera:
-        # 1. Högre kompetens-score
-        # 2. Färre tilldelade ansökningar (balans)
+        # Sortera enligt README:s prioritetsordning: ledamotsbalans väger tyngre
+        # än kompetensmatchning, så kompetens avgör bara mellan annars lika
+        # belastade kandidater.
+        # 1. Färre tilldelade ansökningar (balans)
+        # 2. Högre kompetens-score
         kandidater.sort(key=lambda k: (
-            -k['kompetens_score'],    # Högre score bättre (negativ för stigande sort)
-            k['antal_tilldelade']    # Färre tilldelade bättre
+            k['antal_tilldelade'],    # Färre tilldelade bättre
+            -k['kompetens_score']     # Högre score bättre (negativ för stigande sort)
         ))
         
         return kandidater[0]['ledamot']
