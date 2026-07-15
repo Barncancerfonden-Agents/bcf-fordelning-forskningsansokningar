@@ -45,7 +45,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             ...
         ],
         "javsrelationer": [
-            {"initialer": "AA", "ans_no": "KP2024-0001"},
+            {"ans_no": "KP2024-0001", "initialer_lista": ["AA", "BB"]},
             ...
         ]
     }
@@ -127,14 +127,17 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             ))
         
         # Bygg jävsrelationer dict
+        # Varje post har ett ans_no och en lista med jäviga initialer (en SharePoint-rad
+        # per ansökan, med flera initialer i samma cell) snarare än en post per par.
         javsrelationer = {}
         for j in req_body['javsrelationer']:
-            initialer = str(j.get('initialer', '')).strip()
             ans_no = str(j.get('ans_no', '')).strip()
-            if initialer and ans_no:
-                if initialer not in javsrelationer:
-                    javsrelationer[initialer] = set()
-                javsrelationer[initialer].add(ans_no)
+            for initialer_raw in j.get('initialer_lista', []):
+                initialer = str(initialer_raw).strip()
+                if initialer and ans_no:
+                    if initialer not in javsrelationer:
+                        javsrelationer[initialer] = set()
+                    javsrelationer[initialer].add(ans_no)
         
         logging.info(f"Mottog {len(ansokningar)} ansökningar, {len(ledamoter)} ledamöter, "
                      f"{sum(len(v) for v in javsrelationer.values())} jävsrelationer")
