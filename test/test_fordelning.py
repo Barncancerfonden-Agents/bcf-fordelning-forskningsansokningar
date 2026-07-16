@@ -202,7 +202,65 @@ class TestOrdforandeJav:
         
         motor = Fordelningsmotor(ansokningar, ledamoter, jav)
         fordelningar = motor.fordela()
-        
+
+        assert fordelningar[0].osakert == True
+
+
+class TestJavBrytsAldrigTyst:
+    """Regressionstester för buggen där sista-utväg-fallbacken i _valj_ledamot
+    ignorerade jäv helt och tilldelade en jävig ledamot utan att flagga det."""
+
+    def test_alla_ledamoter_i_vald_grupp_javiga_flyttar_till_annan_grupp(self):
+        """Om alla icke-ordförande i den ursprungligt valda gruppen är jäviga
+        ska en jävfri ledamot i en annan grupp väljas istället, aldrig en
+        jävig person i ursprungsgruppen."""
+        ansokningar = [
+            Ansokan("KP2024-0001", "Test Testsson", "Grundforskning", "", "", [])
+        ]
+        ledamoter = [
+            Ledamot("Ordf I", "OI", "Bio I", "Ordförande", "", []),
+            Ledamot("Led I1", "LI1", "Bio I", "Ledamot", "", []),
+            Ledamot("Led I2", "LI2", "Bio I", "Ledamot", "", []),
+            Ledamot("Ordf II", "OII", "Bio II", "Ordförande", "", []),
+            Ledamot("Led II", "LII", "Bio II", "Ledamot", "", []),
+        ]
+        # Ordförande i Bio I är INTE jävig (så gruppurvalet väljer Bio I),
+        # men båda ledamöterna i Bio I är jäviga.
+        jav = {
+            "LI1": {"KP2024-0001"},
+            "LI2": {"KP2024-0001"},
+        }
+        motor = Fordelningsmotor(ansokningar, ledamoter, jav)
+        fordelningar = motor.fordela()
+
+        tilldelad = fordelningar[0].ledamot_initialer
+        assert tilldelad not in jav, f"Jävig ledamot {tilldelad} tilldelades trots jäv"
+        assert tilldelad == "LII"
+        assert fordelningar[0].grupp == "Bio II"
+
+    def test_ingen_javfri_ledamot_alls_flaggas_osaker(self):
+        """Om verkligen ingen jävfri icke-ordförande finns i någon grupp ska
+        ansökan flaggas som osäker, aldrig tilldelas tyst."""
+        ansokningar = [
+            Ansokan("KP2024-0001", "Test Testsson", "Grundforskning", "", "", [])
+        ]
+        ledamoter = [
+            Ledamot("Ordf I", "OI", "Bio I", "Ordförande", "", []),
+            Ledamot("Led I", "LI", "Bio I", "Ledamot", "", []),
+            Ledamot("Ordf II", "OII", "Bio II", "Ordförande", "", []),
+            Ledamot("Led II", "LII", "Bio II", "Ledamot", "", []),
+            Ledamot("Ordf III", "OIII", "Bio III", "Ordförande", "", []),
+            Ledamot("Led III", "LIII", "Bio III", "Ledamot", "", []),
+        ]
+        # Alla icke-ordförande ledamöter i alla grupper är jäviga
+        jav = {
+            "LI": {"KP2024-0001"},
+            "LII": {"KP2024-0001"},
+            "LIII": {"KP2024-0001"},
+        }
+        motor = Fordelningsmotor(ansokningar, ledamoter, jav)
+        fordelningar = motor.fordela()
+
         assert fordelningar[0].osakert == True
 
 

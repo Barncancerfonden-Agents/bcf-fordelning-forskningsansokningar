@@ -205,39 +205,33 @@ class Fordelningsmotor:
         
         return basta['grupp'], alla_ordf_javiga, basta['javiga_initialer']
     
-    def _valj_ledamot(self, ansokan: Ansokan, grupp: str) -> Ledamot:
+    def _basta_kandidat_i_grupp(self, ansokan: Ansokan, grupp: str) -> Optional[Ledamot]:
         """
-        Välj bästa ledamot för en ansökan inom en grupp.
-        
+        Hitta bästa icke-ordförande, icke-jäviga ledamot inom en specifik grupp.
+
         Returns:
-            Vald ledamot
+            Bästa ledamoten, eller None om ingen jävfri icke-ordförande finns i gruppen.
         """
         kandidater = []
-        
+
         for ledamot in self.ledamoter_per_grupp[grupp]:
-            # Hoppa över ordförande och jäviga
             if ledamot.ar_ordforande:
                 continue
             if self._ar_javig(ledamot.initialer, ansokan.ans_no):
                 continue
-            
+
             kompetens_score = self._berakna_kompetens_score(ansokan, ledamot)
             antal_tilldelade = self.ansokningar_per_ledamot[ledamot.initialer]
-            
+
             kandidater.append({
                 'ledamot': ledamot,
                 'kompetens_score': kompetens_score,
                 'antal_tilldelade': antal_tilldelade
             })
-        
+
         if not kandidater:
-            # Fallback: ta första icke-jäviga (även ordförande om nödvändigt)
-            for ledamot in self.ledamoter_per_grupp[grupp]:
-                if not self._ar_javig(ledamot.initialer, ansokan.ans_no):
-                    return ledamot
-            # Sista utväg: ta första i gruppen
-            return self.ledamoter_per_grupp[grupp][0]
-        
+            return None
+
         # Sortera enligt README:s prioritetsordning: ledamotsbalans väger tyngre
         # än kompetensmatchning, så kompetens avgör bara mellan annars lika
         # belastade kandidater.
@@ -247,15 +241,47 @@ class Fordelningsmotor:
             k['antal_tilldelade'],    # Färre tilldelade bättre
             -k['kompetens_score']     # Högre score bättre (negativ för stigande sort)
         ))
-        
+
         return kandidater[0]['ledamot']
+
+    def _valj_ledamot(self, ansokan: Ansokan, grupp: str) -> tuple[Ledamot, str, bool]:
+        """
+        Välj bästa ledamot för en ansökan. Jäv får ALDRIG brytas i onödan: om alla
+        ledamöter i den valda gruppen är jäviga letas det i övriga grupper innan
+        någon jävig person tilldelas.
+
+        Returns:
+            Tuple (ledamot, faktisk_grupp, tvingad_jav). tvingad_jav är True bara
+            om ingen jävfri ledamot kunde hittas i någon grupp alls.
+        """
+        basta = self._basta_kandidat_i_grupp(ansokan, grupp)
+        if basta:
+            return basta, grupp, False
+
+        # Alla icke-ordförande i den valda gruppen är jäviga - sök i övriga grupper
+        for annan_grupp in self.GRUPPER:
+            if annan_grupp == grupp:
+                continue
+            basta = self._basta_kandidat_i_grupp(ansokan, annan_grupp)
+            if basta:
+                return basta, annan_grupp, False
+
+        # Absolut sista utväg: ingen jävfri ledamot finns i hela organisationen.
+        # Välj minst belastad icke-ordförande i ursprunglig grupp, men flagga
+        # tydligt att jäv inte kunde undvikas - tilldela ALDRIG detta tyst.
+        icke_ordforande = [l for l in self.ledamoter_per_grupp[grupp] if not l.ar_ordforande]
+        if icke_ordforande:
+            vald = min(icke_ordforande, key=lambda l: self.ansokningar_per_ledamot[l.initialer])
+            return vald, grupp, True
+        return self.ledamoter_per_grupp[grupp][0], grupp, True
     
-    def _skapa_motivering(self, ansokan: Ansokan, ledamot: Ledamot, 
+    def _skapa_motivering(self, ansokan: Ansokan, ledamot: Ledamot,
                           grupp: str, javiga_i_gruppen: list[str],
-                          osakert: bool) -> str:
+                          osakert: bool, ursprunglig_grupp: Optional[str] = None,
+                          tvingad_jav: bool = False) -> str:
         """Skapa en detaljerad motivering för fördelningen."""
         delar = []
-        
+
         # Beskrivning av ansökan
         if ansokan.diagnos and str(ansokan.diagnos).lower() != 'nan':
             delar.append(f"Ansökan inom {ansokan.diagnos}")
@@ -265,16 +291,20 @@ class Fordelningsmotor:
             delar.append(f"Ansökan matchar {', '.join(ansokan.nyckelord[:2])}")
         else:
             delar.append(f"Ansökan i kategori {ansokan.forskningskategori}")
-        
+
         # Ledamotens kompetens
         if ledamot.nyckelord:
             kompetens_str = ', '.join(ledamot.nyckelord[:3])
             delar.append(f"{ledamot.initialer} har kompetens inom {kompetens_str}")
         elif ledamot.forskningskategori:
             delar.append(f"{ledamot.initialer} har kompetens inom {ledamot.forskningskategori}")
-        
+
         # Jävsinfo
-        if javiga_i_gruppen:
+        if tvingad_jav:
+            delar.append(f"OBS: {ledamot.initialer} ÄR jävig, men ingen jävfri ledamot kunde hittas i någon grupp")
+        elif ursprunglig_grupp and ursprunglig_grupp != grupp:
+            delar.append(f"Flyttad till {grupp} eftersom alla ledamöter i {ursprunglig_grupp} var jäviga; ingen jäv identifierad mot {ledamot.initialer} i {grupp}")
+        elif javiga_i_gruppen:
             andra_grupper_jav = []
             for g in self.GRUPPER:
                 if g != grupp:
@@ -284,22 +314,23 @@ class Fordelningsmotor:
                     ]
                     if jav_i_g:
                         andra_grupper_jav.append(f"{g} ({', '.join(jav_i_g)})")
-            
+
             if andra_grupper_jav:
                 delar.append(f"Jäv fanns i {', '.join(andra_grupper_jav)}")
-            
-            if javiga_i_gruppen:
-                delar.append(f"I vald grupp är {', '.join(javiga_i_gruppen)} jäviga, men ej {ledamot.initialer}")
+
+            delar.append(f"I vald grupp är {', '.join(javiga_i_gruppen)} jäviga, men ej {ledamot.initialer}")
         else:
             delar.append(f"Ingen jäv identifierad mot {ledamot.initialer}")
-        
+
         # Balanseringsinfo
         delar.append(f"Val av {grupp} bidrar till balanserad fördelning")
-        
+
         # Osäkerhetsmarkering
-        if osakert:
+        if tvingad_jav:
+            delar.insert(0, "OSÄKER PLACERING: Jäv kunde inte undvikas, kräver manuell granskning.")
+        elif osakert:
             delar.insert(0, "OSÄKER PLACERING: Alla ordförande är jäviga.")
-        
+
         return "; ".join(delar) + "."
     
     def fordela(self) -> list[Fordelning]:
@@ -316,16 +347,19 @@ class Fordelningsmotor:
         
         for ansokan in sorterade:
             # Steg 1-3: Välj grupp
-            grupp, osakert, javiga_i_gruppen = self._valj_grupp(ansokan)
-            
-            # Steg 4-5: Välj ledamot
-            ledamot = self._valj_ledamot(ansokan, grupp)
-            
+            vald_grupp, osakert, javiga_i_gruppen = self._valj_grupp(ansokan)
+
+            # Steg 4-5: Välj ledamot (kan hamna i en annan grupp om vald_grupp
+            # saknar jävfria ledamöter - jäv får aldrig brytas i onödan)
+            ledamot, grupp, tvingad_jav = self._valj_ledamot(ansokan, vald_grupp)
+            osakert = osakert or tvingad_jav
+
             # Steg 6: Skapa motivering
             motivering = self._skapa_motivering(
-                ansokan, ledamot, grupp, javiga_i_gruppen, osakert
+                ansokan, ledamot, grupp, javiga_i_gruppen, osakert,
+                ursprunglig_grupp=vald_grupp, tvingad_jav=tvingad_jav
             )
-            
+
             # Skapa fördelning
             fordelning = Fordelning(
                 ans_no=ansokan.ans_no,
