@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="sv">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Fördelning av forskningsansökningar – Översikt</title>
+<style>
+  :root {
+    --ink: #16233a;
+    --ink-soft: #3c4a63;
+    --mork: #2f5294;
+    --mork-deep: #1f3a6e;
+    --ljus: #4dbaee;
+    --ljus2: #a4dbf8;
+    --ljus3: #dff2fd;
+    --korall: #ea5053;
+    --korall-deep: #c93639;
+    --beige: #eae3d9;
+    --beige-line: #d8cec0;
+    --rosa: #f39aa3;
+    --paper: #fffdfb;
+    --white: #ffffff;
+
+    --display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, "Times New Roman", serif;
+    --body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Code", Consolas, "Liberation Mono", monospace;
+
+    --measure: 40rem;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation-duration: 0.001ms !important; transition-duration: 0.001ms !important; }
+  }
+
+  body {
+    margin: 0;
+    font-family: var(--body);
+    color: var(--ink);
+    background: var(--paper);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--display);
+    font-weight: 700;
+    color: var(--mork-deep);
+    text-wrap: balance;
+    line-height: 1.15;
+    margin: 0;
+  }
+
+  p { margin: 0; }
+  a { color: var(--mork); text-decoration-color: var(--ljus2); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { color: var(--korall-deep); }
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
+    outline: 3px solid var(--ljus);
+    outline-offset: 2px;
+  }
+
+  code, .mono { font-family: var(--mono); }
+
+  .wrap {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: 0 1.75rem;
+  }
+
+  .prose { max-width: var(--measure); }
+
+  /* ---------- top nav ---------- */
+  .topnav {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(255, 253, 251, 0.92);
+    backdrop-filter: blur(6px);
+    border-bottom: 1px solid var(--beige-line);
+  }
+  .topnav .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-top: 0.85rem;
+    padding-bottom: 0.85rem;
+  }
+  .brand {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--mork-deep);
+    white-space: nowrap;
+  }
+  .brand span { color: var(--korall); }
+  .navlinks {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-size: 0.92rem;
+  }
+  .navlinks a {
+    color: var(--ink-soft);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .navlinks a:hover { color: var(--mork); }
+  @media (max-width: 640px) {
+    .navlinks { display: none; }
+  }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: 4.5rem 0 3.5rem;
+  }
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mork);
+    background: var(--ljus3);
+    border: 1px solid var(--ljus2);
+    padding: 0.3rem 0.7rem;
+    border-radius: 999px;
+    margin-bottom: 1.25rem;
+  }
+  .hero h1 {
+    font-size: clamp(2.1rem, 4.2vw, 3.1rem);
+    max-width: 24ch;
+  }
+  .hero .lead {
+    margin-top: 1.1rem;
+    font-size: 1.15rem;
+    color: var(--ink-soft);
+    max-width: 38rem;
+  }
+  .hero-cta {
+    margin-top: 2rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.9rem;
+    align-items: center;
+  }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--body);
+    font-weight: 700;
+    font-size: 0.98rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 0.5rem;
+    text-decoration: none;
+    border: 2px solid transparent;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .btn-primary {
+    background: var(--korall);
+    color: var(--white);
+    box-shadow: 0 6px 16px -6px rgba(234, 80, 83, 0.55);
+  }
+  .btn-primary:hover { background: var(--korall-deep); color: var(--white); transform: translateY(-1px); }
+  .btn-ghost {
+    background: transparent;
+    border-color: var(--beige-line);
+    color: var(--mork-deep);
+  }
+  .btn-ghost:hover { border-color: var(--mork); color: var(--mork); }
+
+  .hero-note {
+    margin-top: 0.85rem;
+    font-size: 0.87rem;
+    color: var(--ink-soft);
+  }
+
+  /* ---------- section shell ---------- */
+  section { padding: 4rem 0; }
+  section.band-beige { background: var(--beige); }
+  .section-head { max-width: 42rem; margin-bottom: 2.5rem; }
+  .section-head .kicker {
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--korall-deep);
+    margin-bottom: 0.6rem;
+    display: block;
+  }
+  .section-head h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); }
+  .section-head p { margin-top: 0.9rem; color: var(--ink-soft); font-size: 1.02rem; }
+
+  /* ---------- steps ---------- */
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: 1.25rem;
+    counter-reset: step;
+  }
+  .step {
+    position: relative;
+    background: var(--white);
+    border: 1px solid var(--beige-line);
+    border-radius: 0.75rem;
+    padding: 1.5rem 1.4rem 1.4rem;
+  }
+  .step::before {
+    counter-increment: step;
+    content: counter(step);
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.6rem;
+    color: var(--ljus);
+    display: block;
+    margin-bottom: 0.6rem;
+  }
+  .step h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+  .step p { font-size: 0.92rem; color: var(--ink-soft); }
+  .step a { font-size: 0.88rem; font-weight: 700; }
+  .step .tag {
+    display: inline-block;
+    margin-top: 0.7rem;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    color: var(--mork);
+    background: var(--ljus3);
+    padding: 0.15rem 0.5rem;
+    border-radius: 0.3rem;
+  }
+
+  /* ---------- file tabs ---------- */
+  .tabbar {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px solid var(--beige-line);
+  }
+  .tabbtn {
+    font-family: var(--body);
+    font-weight: 700;
+    font-size: 0.92rem;
+    background: none;
+    border: none;
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+    color: var(--ink-soft);
+    border-bottom: 3px solid transparent;
+    margin-bottom: -1px;
+  }
+  .tabbtn:hover { color: var(--mork); }
+  .tabbtn[aria-selected="true"] {
+    color: var(--mork-deep);
+    border-bottom-color: var(--korall);
+  }
+  .tabpanel { display: none; }
+  .tabpanel[data-active="true"] { display: block; }
+  .tabpanel .filename {
+    font-family: var(--mono);
+    font-size: 0.95rem;
+    background: var(--ink);
+    color: var(--ljus3);
+    display: inline-block;
+    padding: 0.3rem 0.7rem;
+    border-radius: 0.35rem;
+    margin-bottom: 1rem;
+  }
+  .table-scroll { overflow-x: auto; border: 1px solid var(--beige-line); border-radius: 0.6rem; }
+  table { border-collapse: collapse; width: 100%; font-size: 0.92rem; min-width: 30rem; }
+  th, td { text-align: left; padding: 0.65rem 0.9rem; border-bottom: 1px solid var(--beige-line); }
+  thead th { background: var(--beige); color: var(--mork-deep); font-family: var(--display); font-weight: 700; }
+  tbody tr:last-child td { border-bottom: none; }
+  td.col { font-family: var(--mono); font-size: 0.86rem; color: var(--mork-deep); white-space: nowrap; }
+  .filenote { margin-top: 1rem; font-size: 0.88rem; color: var(--ink-soft); }
+
+  /* ---------- priority accordion ---------- */
+  .priority {
+    display: grid;
+    gap: 0.9rem;
+  }
+  .pri-item {
+    background: var(--white);
+    border: 1px solid var(--beige-line);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+  .pri-trigger {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 1.1rem 1.3rem;
+    text-align: left;
+    font-family: var(--body);
+  }
+  .pri-rank {
+    flex: none;
+    width: 2.4rem;
+    height: 2.4rem;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--white);
+  }
+  .pri-item[data-tone="korall"] .pri-rank { background: var(--korall); }
+  .pri-item[data-tone="mork"] .pri-rank { background: var(--mork); }
+  .pri-item[data-tone="ljus"] .pri-rank { background: var(--ljus); color: var(--mork-deep); }
+  .pri-title { flex: 1; }
+  .pri-title strong { display: block; font-size: 1.03rem; color: var(--ink); }
+  .pri-title span { display: block; font-size: 0.85rem; color: var(--ink-soft); margin-top: 0.1rem; }
+  .pri-chevron {
+    flex: none;
+    width: 1.5rem;
+    height: 1.5rem;
+    color: var(--ink-soft);
+    transition: transform 0.18s ease;
+  }
+  .pri-trigger[aria-expanded="true"] .pri-chevron { transform: rotate(180deg); }
+  .pri-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s ease;
+  }
+  .pri-body-inner {
+    padding: 0 1.3rem 1.3rem 4.3rem;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+  }
+  .pri-example {
+    margin-top: 0.8rem;
+    background: var(--beige);
+    border-left: 3px solid var(--korall);
+    padding: 0.75rem 1rem;
+    border-radius: 0.35rem;
+    font-size: 0.88rem;
+  }
+  .pri-example strong { color: var(--mork-deep); }
+
+  /* ---------- architecture ---------- */
+  .arch-flow {
+    display: flex;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 0;
+    margin-bottom: 2.5rem;
+  }
+  .arch-node {
+    flex: 1 1 15rem;
+    min-width: 15rem;
+    background: var(--white);
+    border: 1px solid var(--beige-line);
+    border-radius: 0.75rem;
+    padding: 0;
+  }
+  .arch-trigger {
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 1.4rem 1.4rem 1.2rem;
+    text-align: left;
+    font-family: var(--body);
+  }
+  .arch-icon {
+    width: 2.6rem;
+    height: 2.6rem;
+    border-radius: 0.6rem;
+    display: grid;
+    place-items: center;
+    margin-bottom: 0.9rem;
+    color: var(--white);
+    font-family: var(--display);
+    font-weight: 700;
+  }
+  .arch-node:nth-of-type(1) .arch-icon { background: var(--mork); }
+  .arch-node:nth-of-type(2) .arch-icon { background: var(--ljus); color: var(--mork-deep); }
+  .arch-node:nth-of-type(3) .arch-icon { background: var(--korall); }
+  .arch-trigger h4 { font-size: 1.05rem; color: var(--ink); margin-bottom: 0.3rem; }
+  .arch-trigger .sub { font-size: 0.86rem; color: var(--ink-soft); }
+  .arch-more {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--mork);
+    margin-top: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+  .arch-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.22s ease;
+  }
+  .arch-body-inner {
+    padding: 0 1.4rem 1.4rem;
+    font-size: 0.88rem;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--beige-line);
+    padding-top: 1rem;
+  }
+  .arch-body-inner code { background: var(--beige); padding: 0.1rem 0.35rem; border-radius: 0.25rem; font-size: 0.82rem; }
+  .arch-body-inner ul { margin: 0.6rem 0 0; padding-left: 1.1rem; }
+  .arch-body-inner li { margin-bottom: 0.35rem; }
+
+  .arch-arrow {
+    flex: 0 0 auto;
+    align-self: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--beige-line);
+    font-size: 1.6rem;
+    padding: 0 0.6rem;
+  }
+  @media (max-width: 900px) {
+    .arch-flow { flex-direction: column; }
+    .arch-node { width: 100%; }
+    .arch-arrow { transform: rotate(90deg); padding: 0.5rem 0; }
+  }
+
+  .fact-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+    gap: 1.5rem;
+    margin-top: 2.5rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--beige-line);
+  }
+  .fact dt {
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--korall-deep);
+    margin-bottom: 0.35rem;
+  }
+  .fact dd { margin: 0; font-family: var(--mono); font-size: 0.9rem; color: var(--ink); }
+
+  /* ---------- osaker callout ---------- */
+  .callout {
+    display: flex;
+    gap: 1rem;
+    background: var(--white);
+    border: 1px solid var(--rosa);
+    border-left: 4px solid var(--korall);
+    border-radius: 0.6rem;
+    padding: 1.2rem 1.4rem;
+    margin-top: 2rem;
+  }
+  .callout .mark {
+    flex: none;
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--korall);
+  }
+  .callout p { font-size: 0.92rem; color: var(--ink-soft); }
+  .callout strong { color: var(--ink); }
+
+  section:last-of-type { padding-bottom: 5rem; }
+
+  ::selection { background: var(--ljus2); color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="wrap">
+    <div class="brand">Fördelning av forskningsansökningar <span>·</span> BCF</div>
+    <ul class="navlinks">
+      <li><a href="#anvanda">Så använder du det</a></li>
+      <li><a href="#filer">Filkrav</a></li>
+      <li><a href="#logik">Hur det bestäms</a></li>
+      <li><a href="#teknik">Under huven</a></li>
+    </ul>
+  </div>
+</div>
+
+<header class="hero">
+  <div class="wrap">
+    <span class="eyebrow">Forskningsavdelningen · Internt verktyg</span>
+    <h1>Ett klick fördelar 150 ansökningar rättvist, på tio minuter.</h1>
+    <p class="lead">Tre Excel-filer in, en färdig fördelning ut. Systemet väger jäv, arbetsbelastning och kompetens åt er — den här sidan visar både hur ni använder det och, om ni är nyfikna, exakt hur det är byggt under huven.</p>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/SitePages/F%C3%B6rdelning-av-forskningsans%C3%B6kningar.aspx">Öppna knappsidan →</a>
+      <a class="btn btn-ghost" href="#anvanda">Visa hur det går till</a>
+    </div>
+    <p class="hero-note">Kräver att de tre indatafilerna redan ligger i Input-mappen. Se avsnittet nedan om du är osäker på formatet.</p>
+  </div>
+</header>
+
+<section id="anvanda">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Så använder du det</span>
+      <h2>Fem steg, i tur och ordning</h2>
+      <p>Ingen inloggning i Power Automate eller Azure krävs. Allt sker från SharePoint och Teams.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h3>Ladda upp filerna</h3>
+        <p>Ansökningar.xlsx, Ledamöter.xlsx och Jäv.xlsx läggs i Input-mappen, med samma filnamn varje gång.</p>
+        <a href="https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/Forskning%20och%20utbildning/Forms/AllItems.aspx?id=%2Fsites%2FForskning%5Futveckling%5Fstod%2FForskning%20och%20utbildning%2FFORSKNING%2FPK%2Dagenten%20F%C3%B6redragande%2FF%C3%B6rdelning%20ans%C3%B6kningar%2FInput&viewid=3ee8afc5%2Deb0d%2D4566%2D9f82%2Df60d7ffe63f0">Öppna Input-mappen →</a>
+      </div>
+      <div class="step">
+        <h3>Klicka "Starta fördelning"</h3>
+        <p>Knappen på cockpit-sidan startar hela kedjan — inget mer att fylla i.</p>
+        <span class="tag">Ett klick</span>
+      </div>
+      <div class="step">
+        <h3>Vänta 5–10 minuter</h3>
+        <p>Excel-filerna läses, jäv och kompetens vägs samman för varje ansökan, en resultatfil byggs.</p>
+        <span class="tag">Ingen åtgärd krävs</span>
+      </div>
+      <div class="step">
+        <h3>Få besked i Teams</h3>
+        <p>Ett meddelande talar om att fördelningen är klar — eller vad som gick fel, om något strular.</p>
+      </div>
+      <div class="step">
+        <h3>Hämta resultatet</h3>
+        <p>En ny fil, <span class="mono" style="font-size:0.85em">Fordelning_ÅÅÅÅ-MM-DD.xlsx</span>, läggs i Output-mappen. Gamla resultat skrivs aldrig över.</p>
+        <a href="https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/Forskning%20och%20utbildning/Forms/AllItems.aspx?id=%2Fsites%2FForskning%5Futveckling%5Fstod%2FForskning%20och%20utbildning%2FFORSKNING%2FPK%2Dagenten%20F%C3%B6redragande%2FF%C3%B6rdelning%20ans%C3%B6kningar%2FOutput&viewid=3ee8afc5%2Deb0d%2D4566%2D9f82%2Df60d7ffe63f0">Öppna Output-mappen →</a>
+      </div>
+    </div>
+
+    <div class="callout">
+      <div class="mark">!</div>
+      <p><strong>Kolumnen "Osäker"</strong> i resultatfilen är sant (SANT) bara i mycket ovanliga fall — när alla ordförande är jäviga mot en ansökan, eller när ingen jävfri ledamot alls kunde hittas någonstans. De raderna förtjänar en snabb manuell koll; allt annat är klart att använda direkt.</p>
+    </div>
+  </div>
+</section>
+
+<section id="filer" class="band-beige">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Innan ni kör</span>
+      <h2>Vad varje fil ska innehålla</h2>
+      <p>Alla tre filerna måste vara formaterade som riktiga Excel-tabeller (Infoga → Tabell), inte bara rådata. Klicka mellan flikarna nedan.</p>
+    </div>
+
+    <div role="tablist" aria-label="Indatafiler" class="tabbar">
+      <button class="tabbtn" role="tab" aria-selected="true" aria-controls="panel-ansokningar" id="tab-ansokningar" data-tab="ansokningar">Ansökningar</button>
+      <button class="tabbtn" role="tab" aria-selected="false" aria-controls="panel-ledamoter" id="tab-ledamoter" data-tab="ledamoter">Ledamöter</button>
+      <button class="tabbtn" role="tab" aria-selected="false" aria-controls="panel-jav" id="tab-jav" data-tab="jav">Jäv</button>
+    </div>
+
+    <div id="panel-ansokningar" class="tabpanel" data-active="true" role="tabpanel" aria-labelledby="tab-ansokningar">
+      <span class="filename">Ansökningar.xlsx</span>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Kolumn</th><th>Innehåll</th></tr></thead>
+          <tbody>
+            <tr><td class="col">Ans no</td><td>Unikt ansökningsnummer, t.ex. KP2024-0001</td></tr>
+            <tr><td class="col">Sökande</td><td>Den sökande forskarens namn</td></tr>
+            <tr><td class="col">F.kat</td><td>Forskningskategori</td></tr>
+            <tr><td class="col">Område</td><td>Forskningsområde</td></tr>
+            <tr><td class="col">Diagnos</td><td>Cancerdiagnos ansökan gäller</td></tr>
+            <tr><td class="col">Nyckelord</td><td>Kommaseparerade nyckelord, t.ex. "immunterapi, t-celler"</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="filenote">Övriga kolumner (Projekttitel, Kat, Diagn. und.nivå …) får finnas kvar men läses inte av fördelningen idag.</p>
+    </div>
+
+    <div id="panel-ledamoter" class="tabpanel" role="tabpanel" aria-labelledby="tab-ledamoter">
+      <span class="filename">Ledamöter.xlsx</span>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Kolumn</th><th>Innehåll</th></tr></thead>
+          <tbody>
+            <tr><td class="col">Namn</td><td>Ledamotens fullständiga namn</td></tr>
+            <tr><td class="col">Initialer</td><td>Unika initialer, t.ex. GB — måste stavas exakt likadant i Jäv.xlsx</td></tr>
+            <tr><td class="col">Grupp</td><td>Bio I, Bio II eller Bio III</td></tr>
+            <tr><td class="col">Ordförande</td><td>Texten "Ordförande" på ordförande-rader, annars tomt</td></tr>
+            <tr><td class="col">Forskningskategori</td><td>Ledamotens kompetensområde</td></tr>
+            <tr><td class="col">Nyckelord</td><td>Kommaseparerade kompetenser</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="filenote">Varje grupp behöver exakt en ordförande. Ordförande tilldelas aldrig ansökningar som föredragande.</p>
+    </div>
+
+    <div id="panel-jav" class="tabpanel" role="tabpanel" aria-labelledby="tab-jav">
+      <span class="filename">Jäv.xlsx</span>
+      <div class="table-scroll">
+        <table>
+          <thead><tr><th>Kolumn</th><th>Innehåll</th></tr></thead>
+          <tbody>
+            <tr><td class="col">Ans no</td><td>Ansökningsnummer</td></tr>
+            <tr><td class="col">Jäv</td><td>Alla jäviga initialer för den ansökan, kommaseparerade i samma cell, t.ex. "GB, KN, LP"</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="filenote">En rad per ansökan — inte en rad per jävig person. Lista alla jäviga initialer i samma cell.</p>
+    </div>
+  </div>
+</section>
+
+<section id="logik">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">Hur det bestäms</span>
+      <h2>Prioritetsordningen bakom varje beslut</h2>
+      <p>Varje regel avgör bara när regeln ovanför den inte räcker för att skilja kandidater åt. Klicka på en rad för att se hur den fungerar i praktiken.</p>
+    </div>
+
+    <div class="priority">
+      <div class="pri-item" data-tone="korall">
+        <button class="pri-trigger" aria-expanded="true" aria-controls="pri-1">
+          <span class="pri-rank">1</span>
+          <span class="pri-title"><strong>Jäv går alltid först</strong><span>En jävig person tilldelas i praktiken aldrig som föredragande</span></span>
+          <svg class="pri-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="pri-body" id="pri-1">
+          <div class="pri-body-inner">
+            <p>Om alla ledamöter i en grupp råkar vara jäviga mot en ansökan letar systemet i de andra grupperna efter någon jävfri istället för att ge upp jäv-kravet. Bara om ingen jävfri person finns någonstans alls tilldelas en jävig person — och då flaggas ansökan alltid som "Osäker" för manuell granskning.</p>
+            <div class="pri-example"><strong>Verkligt exempel:</strong> en ansökan med fem jäviga ledamöter i sin naturliga grupp flyttades automatiskt till en annan grupp där en jävfri ledamot fanns, istället för att tilldelas fel person.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pri-item" data-tone="mork">
+        <button class="pri-trigger" aria-expanded="false" aria-controls="pri-2">
+          <span class="pri-rank">2</span>
+          <span class="pri-title"><strong>Minimera jäv, balansera grupperna</strong><span>Den grupp med minst jäv och jämnast belastning väljs</span></span>
+          <svg class="pri-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="pri-body" id="pri-2">
+          <div class="pri-body-inner">
+            <p>Bland de tre prioriteringsgrupperna (Bio I, Bio II, Bio III) väljs den där ordföranden inte är jävig, sedan den med minst antal jäviga ledamöter totalt, sedan den som hittills fått minst antal ansökningar — så att alla tre grupper hamnar runt lika många ansökningar (~50 var på 150 ansökningar).</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="pri-item" data-tone="ljus">
+        <button class="pri-trigger" aria-expanded="false" aria-controls="pri-3">
+          <span class="pri-rank">3</span>
+          <span class="pri-title"><strong>Jämn arbetsbelastning väger tyngre än kompetens</strong><span>Den minst belastade jävfria ledamoten väljs, kompetens avgör bara vid oavgjort</span></span>
+          <svg class="pri-chevron" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 7.5L10 12.5L15 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <div class="pri-body" id="pri-3">
+          <div class="pri-body-inner">
+            <p>Kompetensmatchning (forskningskategori och nyckelord) används för att skilja mellan ledamöter som redan har fått lika många ansökningar — inte som huvudkriterium. Det är medvetet: kompetens ensam skulle kunna göra att en enda bredkunnig ledamot får en oproportionerlig andel av alla ansökningar.</p>
+            <div class="pri-example"><strong>Verkligt exempel:</strong> innan den här regeln fanns fick en ledamot med breda nyckelord 48 av 147 ansökningar, medan kollegorna fick 5–8 var. Att låta arbetsbelastning väga tyngre än kompetens jämnade ut det direkt.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="teknik" class="band-beige">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="kicker">För de nyfikna</span>
+      <h2>Under huven — så är det byggt</h2>
+      <p>Tre system pratar med varandra utan att ni behöver röra något av dem direkt. Klicka på en ruta för mer detalj.</p>
+    </div>
+
+    <div class="arch-flow">
+      <div class="arch-node">
+        <button class="arch-trigger" aria-expanded="false" aria-controls="arch-1">
+          <div class="arch-icon">SP</div>
+          <h4>SharePoint</h4>
+          <p class="sub">Lagrar filerna och knappen ni klickar</p>
+          <span class="arch-more">Visa mer ↓</span>
+        </button>
+        <div class="arch-body" id="arch-1">
+          <div class="arch-body-inner">
+            <p>Input- och Output-mapparna ligger i biblioteket <code>Forskning och utbildning</code> på siten <code>Forskning, utveckling &amp; stöd</code>. Knappen "Starta fördelning" på cockpit-sidan är kopplad direkt till Power Automate-flödet via dess flödes-ID.</p>
+            <ul>
+              <li>Excel-filerna måste vara riktiga tabeller, inte rådata</li>
+              <li>Resultatfilen skapas som en kopia av en mall, en ny fil per körning</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-arrow" aria-hidden="true">→</div>
+
+      <div class="arch-node">
+        <button class="arch-trigger" aria-expanded="false" aria-controls="arch-2">
+          <div class="arch-icon">PA</div>
+          <h4>Power Automate</h4>
+          <p class="sub">Läser filerna, ringer beräkningen, skriver resultatet</p>
+          <span class="arch-more">Visa mer ↓</span>
+        </button>
+        <div class="arch-body" id="arch-2">
+          <div class="arch-body-inner">
+            <p>Ett flöde läser de tre Excel-tabellerna, omvandlar dem till ett format beräkningsmotorn förstår, skickar dem vidare och tar sedan emot ett färdigt förslag som skrivs till en ny resultatfil rad för rad. Ett Teams-meddelande skickas när allt är klart.</p>
+            <ul>
+              <li>Körs i en dedikerad utvecklingsmiljö (Sandbox Dev)</li>
+              <li>Ingen data lagras i Power Automate självt — allt går vidare direkt</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-arrow" aria-hidden="true">→</div>
+
+      <div class="arch-node">
+        <button class="arch-trigger" aria-expanded="false" aria-controls="arch-3">
+          <div class="arch-icon">AF</div>
+          <h4>Azure Function</h4>
+          <p class="sub">Den faktiska fördelningsberäkningen</p>
+          <span class="arch-more">Visa mer ↓</span>
+        </button>
+        <div class="arch-body" id="arch-3">
+          <div class="arch-body-inner">
+            <p>Ett litet program skrivet i Python kör prioritetsordningen (jäv → gruppbalans → ledamotsbalans → kompetens) för varje ansökan och skickar tillbaka ett förslag med motivering för varje rad. Programmet minns ingenting mellan körningar — allt processas i minnet och glöms bort direkt efteråt.</p>
+            <ul>
+              <li>Körtid: några sekunder för ~150 ansökningar</li>
+              <li>Källkoden finns öppet i projektets Git-repo, tillsammans med automatiska tester som kontrollerar att jäv, balans och gruppregler alltid respekteras</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <dl class="fact-row">
+      <div class="fact"><dt>Miljö</dt><dd>bcf-fordelning-dev</dd></div>
+      <div class="fact"><dt>Region</dt><dd>Sweden Central</dd></div>
+      <div class="fact"><dt>Språk</dt><dd>Python 3.11</dd></div>
+      <div class="fact"><dt>Datalagring</dt><dd>Ingen (processas i minnet)</dd></div>
+    </dl>
+  </div>
+</section>
+
+<script>
+  (function () {
+    // Tabs
+    var tabs = document.querySelectorAll('.tabbtn');
+    tabs.forEach(function (tab) {
+      tab.addEventListener('click', function () {
+        var target = tab.getAttribute('data-tab');
+        tabs.forEach(function (t) { t.setAttribute('aria-selected', 'false'); });
+        tab.setAttribute('aria-selected', 'true');
+        document.querySelectorAll('.tabpanel').forEach(function (p) { p.removeAttribute('data-active'); p.style.display = 'none'; });
+        var panel = document.getElementById('panel-' + target);
+        panel.setAttribute('data-active', 'true');
+        panel.style.display = 'block';
+      });
+    });
+
+    // Priority accordion
+    document.querySelectorAll('.pri-trigger').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        var body = document.getElementById(btn.getAttribute('aria-controls'));
+        btn.setAttribute('aria-expanded', String(!expanded));
+        body.style.maxHeight = expanded ? '0px' : body.scrollHeight + 'px';
+      });
+    });
+    // Open the first priority item by default
+    document.querySelectorAll('.pri-trigger').forEach(function (btn) {
+      if (btn.getAttribute('aria-expanded') === 'true') {
+        var body = document.getElementById(btn.getAttribute('aria-controls'));
+        body.style.maxHeight = body.scrollHeight + 'px';
+      }
+    });
+
+    // Architecture nodes
+    document.querySelectorAll('.arch-trigger').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var expanded = btn.getAttribute('aria-expanded') === 'true';
+        var body = document.getElementById(btn.getAttribute('aria-controls'));
+        var more = btn.querySelector('.arch-more');
+        btn.setAttribute('aria-expanded', String(!expanded));
+        body.style.maxHeight = expanded ? '0px' : body.scrollHeight + 'px';
+        more.textContent = expanded ? 'Visa mer ↓' : 'Dölj ↑';
+      });
+    });
+  })();
+</script>
+
+</body>
+</html>
