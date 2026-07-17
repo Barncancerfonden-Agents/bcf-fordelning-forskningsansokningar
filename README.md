@@ -11,7 +11,9 @@ Fördelningen måste ta hänsyn till:
 - **Kompetensmatching** baserat på forskningskategori och nyckelord
 - **Balansering** av arbetsbelastning mellan grupper och ledamöter
 
-Denna lösning automatiserar hela processen genom en Azure Function som anropas via Power Automate.
+Denna lösning automatiserar hela processen genom en Azure Function som anropas via Power Automate, triggat med en knapp på en SharePoint-sida.
+
+**Status:** Driftsatt och i skarp användning mot dev-miljön i Azure. Ingen produktionsmiljö finns ännu (se `docs/ARCHITECTURE.md`).
 
 ## Arkitektur
 
@@ -20,13 +22,16 @@ Denna lösning automatiserar hela processen genom en Azure Function som anropas 
 │  Excel-filer    │────▶│  Power Automate  │────▶│  Azure Function │
 │  i SharePoint   │     │  (orkestrerare)  │     │  (logik)        │
 └─────────────────┘     └──────────────────┘     └────────┬────────┘
-                                                          │
-                                                          ▼
-                                                ┌─────────────────┐
-                                                │  Resultat-Excel │
-                                                │  + Dataverse    │
-                                                └─────────────────┘
+        ▲                                                  │
+        │                                                  ▼
+┌─────────────────┐                                ┌─────────────────┐
+│  Knapp på       │                                │  Ny resultat-   │
+│  SharePoint-sida│                                │  Excel per      │
+│  triggar flödet │                                │  körning        │
+└─────────────────┘                                └─────────────────┘
 ```
+
+Fullständig teknisk beskrivning: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Snabbstart
 
@@ -62,9 +67,15 @@ func start
 # Kör enhetstester
 python -m pytest test/
 
-# Testa med testfiler
-python -m azure-function.shared.fordelning --test
+# Kör fördelningen fristående mot exempelfilerna (utan Azure Function/HTTP)
+python azure-function/shared/fordelning.py \
+    test/testdata/ansokningar_test.csv \
+    test/testdata/ledamoter_test.csv \
+    test/testdata/jav_test.csv \
+    fordelning_resultat.xlsx
 ```
+
+**Observera:** driftsättning till Azure sker inte via `func azure functionapp publish` i den här lösningen (Azure Functions Core Tools har inte gått att installera i miljön den byggdes i) — se `docs/ARCHITECTURE.md` för den manuella `az functionapp deployment source config-zip`-processen som faktiskt används.
 
 ## Projektstruktur
 
@@ -112,58 +123,58 @@ bcf-fordelning-forskningsansokningar/
 
 ## Fördelningsregler (sammanfattning)
 
-1. **Jäv först**: Ordförande i tilldelad grupp får aldrig vara jävig mot ansökan
-2. **Minimera jäv**: Välj grupp med minst antal jäviga ledamöter
-3. **Gruppbalans**: Fördela ~50 ansökningar per grupp
-4. **Ledamotsbalans**: Varje ledamot får 5-7 ansökningar
-5. **Kompetensmatching**: Primärt forskningskategori, sekundärt nyckelord
-6. **Flagga osäkra**: Ansökningar där alla ordförande är jäviga markeras
+Prioritetsordning — varje regel avgör bara när regeln ovanför den inte räcker för att skilja kandidater åt:
+
+1. **Jäv först**: en jävig person tilldelas i praktiken aldrig. Om alla ledamöter i den naturliga gruppen är jäviga letar motorn i andra grupper. Bara om ingen jävfri ledamot finns någonstans tilldelas en jävig person, och då flaggas ansökan alltid som osäker.
+2. **Minimera jäv**: välj grupp med minst antal jäviga ledamöter (och där ordförande inte är jävig)
+3. **Gruppbalans**: fördela ~50 ansökningar per grupp
+4. **Ledamotsbalans**: väger tyngre än kompetensmatchning — avgör vem som tilldelas bland jävfria kandidater
+5. **Kompetensmatching**: forskningskategori och nyckelord, används bara för att skilja mellan annars lika belastade ledamöter
+6. **Flagga osäkra**: ansökningar där alla ordförande är jäviga, eller där jäv inte gick att undvika alls
+
+Fullständig algoritmbeskrivning: [docs/ALGORITHM.md](docs/ALGORITHM.md).
 
 ## Indatafiler
 
-Tre Excel/CSV-filer krävs:
+Tre Excel-filer krävs, formaterade som Excel-tabeller (Infoga → Tabell), med exakt dessa filnamn: **Ansökningar.xlsx**, **Ledamöter.xlsx**, **Jäv.xlsx**.
 
-### Ansökningar
+### Ansökningar.xlsx
 | Kolumn | Beskrivning |
 |--------|-------------|
 | Ans no | Unikt ansökningsnummer |
-| Huvudsökande | Namn på forskare |
-| F.kat | Forskningskategori (Grundforskning/Translationell/Klinisk) |
+| Sökande | Namn på forskare |
+| F.kat | Forskningskategori |
 | Område | Forskningsområde |
 | Diagnos | Cancerdiagnos |
 | Nyckelord | Kommaseparerade nyckelord |
 
-### Ledamöter
+### Ledamöter.xlsx
 | Kolumn | Beskrivning |
 |--------|-------------|
-| Förnamn, Efternamn | Ledamotens namn |
-| Initialer | Unik identifierare (t.ex. "GB") |
-| Prioriteringsgrupp | Bio I, Bio II eller Bio III |
-| Roll | Ordförande/Ledamot |
+| Namn | Ledamotens fullständiga namn |
+| Initialer | Unik identifierare (t.ex. "GB"), måste matcha Jäv.xlsx exakt |
+| Grupp | Bio I, Bio II eller Bio III |
+| Ordförande | Texten "Ordförande" på ordförande-rader, annars tomt |
 | Forskningskategori | Kompetensområde |
 | Nyckelord | Kommaseparerade kompetenser |
 
-### Jävsrelationer
+### Jäv.xlsx
 | Kolumn | Beskrivning |
 |--------|-------------|
-| Ledamot (Initialer) | Vem som är jävig |
-| Ans no | Mot vilken ansökan |
+| Ans no | Ansökningsnummer |
+| Jäv | Alla jäviga initialer för ansökan, kommaseparerade i samma cell (en rad per ansökan) |
+
+Fullständig, användarvänlig beskrivning: [docs/USER_GUIDE.md](docs/USER_GUIDE.md).
 
 ## Utdata
 
-Excel-fil med tre flikar:
-
-1. **Fördelning**: Alla ansökningar med grupp, ledamot och motivering
-2. **Statistik**: Sammanställning per grupp och ledamot
-3. **Ledamöter per grupp**: Översikt
+En ny Excel-fil per körning (`Fordelning_YYYY-MM-DD.xlsx`), med en tabell: Ans no, Huvudsökande, Grupp, Föredragande, Initialer, Motivering, Osäker.
 
 ## Underhåll
 
-Lösningen är designad för att vara stabil och kräva minimalt underhåll. Vid ändringar:
-
-- **Ny ledamot**: Lägg till i Ledamöter-filen
-- **Ändrad jävsrelation**: Uppdatera Jäv-filen
-- **Ändrad algoritm**: Modifiera `azure-function/shared/fordelning.py`
+- **Ny ledamot**: Lägg till i Ledamöter.xlsx
+- **Ändrad jävsrelation**: Uppdatera Jäv.xlsx
+- **Ändrad algoritm**: Modifiera `azure-function/shared/fordelning.py`, kör om `pytest test/`, deploya manuellt (se `docs/ARCHITECTURE.md` — ingen CI/CD finns, push till GitHub deployar inte automatiskt)
 
 ## Kontakt
 

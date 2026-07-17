@@ -1,155 +1,115 @@
 # Användarguide - Fördelning av forskningsansökningar
 
-Denna guide beskriver hur forskningsavdelningen använder systemet för att fördela forskningsansökningar till prioriteringsgrupper och ledamöter.
+Den här guiden beskriver hur forskningsavdelningen kör fördelningen av forskningsansökningar. Ingen teknisk bakgrund krävs.
 
-## Översikt
+## Vad gör systemet?
 
-Systemet tar tre Excel-filer som indata och producerar en fördelningslista där varje ansökan har tilldelats:
+Systemet läser tre Excel-filer (ansökningar, ledamöter, jävsrelationer) och fördelar automatiskt varje ansökan till:
+
 - En **prioriteringsgrupp** (Bio I, Bio II eller Bio III)
 - En **föredragande ledamot** som ska granska ansökan
 
-Fördelningen tar hänsyn till jävsrelationer, ledamöternas kompetenser och ser till att arbetsbelastningen blir jämnt fördelad.
+Fördelningen tar hänsyn till jäv (viktigast — en jävig person tilldelas aldrig), balanserar arbetsbelastningen mellan grupper och ledamöter, och matchar kompetens där det går.
 
-## Steg-för-steg
+## Steg 1: Förbered de tre Excel-filerna
 
-### 1. Förbered indatafiler
+Filerna måste heta exakt **Ansökningar.xlsx**, **Ledamöter.xlsx** och **Jäv.xlsx**, och varje flik måste vara formaterad som en riktig Excel-**tabell** (Infoga → Tabell), inte bara rådata.
 
-Exportera tre filer från ert interna system:
+### Ansökningar.xlsx
 
-#### Ansökningar.xlsx
+| Kolumn | Krävs | Beskrivning |
+|--------|-------|-------------|
+| Ans no | Ja | Unikt ansökningsnummer, t.ex. KP2024-0001 |
+| Sökande | Ja | Sökandens namn |
+| F.kat | Ja | Forskningskategori |
+| Område | Ja | Forskningsområde |
+| Diagnos | Ja | Cancerdiagnos ansökan gäller |
+| Nyckelord | Ja | Kommaseparerade nyckelord, t.ex. "immunterapi, t-celler" |
 
-| Kolumn | Beskrivning | Exempel |
-|--------|-------------|---------|
-| Ans no | Unikt ansökningsnummer | KP2024-0001 |
-| Huvudsökande | Forskarens namn | Anna Andersson |
-| F.kat | Forskningskategori | Grundforskning |
-| Område | Forskningsområde | Cancerbiologi |
-| Diagnos | Cancerdiagnos | Leukemi |
-| Nyckelord | Kommaseparerade nyckelord | immunterapi, t-celler, car-t |
+*Övriga kolumner (t.ex. Projekttitel, Kat, Diagn. und.nivå) får finnas kvar men används inte av fördelningen idag.*
 
-#### Ledamöter.xlsx
+### Ledamöter.xlsx
 
-| Kolumn | Beskrivning | Exempel |
-|--------|-------------|---------|
-| Förnamn | Ledamotens förnamn | Gisela |
-| Efternamn | Ledamotens efternamn | Barbany |
-| Initialer | Unika initialer | GB |
-| Prioriteringsgrupp | Bio I, Bio II eller Bio III | Bio I |
-| Roll | Ordförande eller Ledamot | Ordförande |
-| Forskningskategori | Kompetensområde | Grundforskning |
-| Nyckelord | Kompetenser | genetik, leukemi, diagnostik |
+| Kolumn | Krävs | Beskrivning |
+|--------|-------|-------------|
+| Namn | Ja | Ledamotens fullständiga namn |
+| Initialer | Ja | Unika initialer, t.ex. GB — måste matcha exakt de initialer som används i Jäv.xlsx |
+| Grupp | Ja | Bio I, Bio II eller Bio III |
+| Ordförande | Ja | Skriv exakt texten "Ordförande" på de rader som är ordförande, lämna tomt för övriga |
+| Forskningskategori | Ja | Ledamotens kompetensområde |
+| Nyckelord | Ja | Kommaseparerade kompetensord |
 
-#### Jäv.xlsx
+**Varje grupp (Bio I/II/III) måste ha exakt en ordförande.** Ordförande tilldelas aldrig ansökningar som föredragande.
 
-| Kolumn | Beskrivning | Exempel |
-|--------|-------------|---------|
-| Ledamot | Ledamotens initialer | GB |
-| Ans no | Ansökningsnummer | KP2024-0001 |
+### Jäv.xlsx
 
-### 2. Ladda upp filer
+| Kolumn | Krävs | Beskrivning |
+|--------|-------|-------------|
+| Ans no | Ja | Ansökningsnummer |
+| Jäv | Ja | Initialer på alla jäviga ledamöter för just den ansökan, kommaseparerade, t.ex. "GB, KN, LP" |
 
-1. Gå till SharePoint-sidan för fördelning
-2. Navigera till mappen **Indata**
-3. Ladda upp de tre filerna (ersätt eventuellt befintliga)
+En rad per ansökan (inte en rad per jävig person) — lista alla jäviga initialer i samma cell.
 
-### 3. Kör fördelning
+## Steg 2: Ladda upp filerna
 
-1. Gå till cockpit-sidan
-2. Kontrollera att rätt filer visas under "Indatafiler"
-3. Klicka på knappen **Kör fördelning**
-4. Vänta medan systemet arbetar (ca 10-30 sekunder)
-5. En bekräftelse visas när fördelningen är klar
+1. Öppna [Input-mappen](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/Forskning%20och%20utbildning/Forms/AllItems.aspx?id=%2Fsites%2FForskning%5Futveckling%5Fstod%2FForskning%20och%20utbildning%2FFORSKNING%2FPK%2Dagenten%20F%C3%B6redragande%2FF%C3%B6rdelning%20ans%C3%B6kningar%2FInput&viewid=3ee8afc5%2Deb0d%2D4566%2D9f82%2Df60d7ffe63f0)
+2. Ladda upp de tre filerna — skriv över eventuella tidigare versioner med samma filnamn
 
-### 4. Granska resultat
+## Steg 3: Starta fördelningen
 
-Resultatfilen skapas automatiskt i mappen **Resultat** och innehåller tre flikar:
+1. Gå till [sidan "Fördelning av forskningsansökningar"](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/SitePages/F%C3%B6rdelning-av-forskningsans%C3%B6kningar.aspx)
+2. Klicka på knappen **Starta fördelning**
+3. Vänta — det tar cirka **5-10 minuter**
+4. Du får ett **meddelande i Teams** när fördelningen är klar (eller om något gick fel)
 
-#### Flik 1: Fördelning
+## Steg 4: Hämta resultatet
 
-Huvudresultatet med alla ansökningar:
+Resultatet läggs i [Output-mappen](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/Forskning%20och%20utbildning/Forms/AllItems.aspx?id=%2Fsites%2FForskning%5Futveckling%5Fstod%2FForskning%20och%20utbildning%2FFORSKNING%2FPK%2Dagenten%20F%C3%B6redragande%2FF%C3%B6rdelning%20ans%C3%B6kningar%2FOutput&viewid=3ee8afc5%2Deb0d%2D4566%2D9f82%2Df60d7ffe63f0) som en ny fil, namngiven efter dagens datum (t.ex. `Fordelning_2026-07-17.xlsx`). Varje körning skapar en ny fil — gamla resultat skrivs aldrig över.
+
+Filen innehåller en tabell med följande kolumner:
 
 | Kolumn | Beskrivning |
 |--------|-------------|
 | Ans no | Ansökningsnummer |
-| Huvudsökande | Forskarens namn |
+| Huvudsökande | Sökandens namn |
 | Grupp | Tilldelad prioriteringsgrupp |
 | Föredragande | Ledamotens namn |
 | Initialer | Ledamotens initialer |
-| Motivering | Förklaring till fördelningen |
-| Osäker | "JA" om fördelningen behöver granskas manuellt |
+| Motivering | Förklaring till varför just den här grupp/ledamot valdes |
+| Osäker | SANT om fördelningen behöver granskas manuellt, annars FALSKT |
 
-#### Flik 2: Statistik
+## Steg 5: Granska osäkra rader
 
-Sammanställning som visar:
-- Antal ansökningar per grupp
-- Antal ansökningar per ledamot
+Sortera/filtrera på kolumnen **Osäker**. En rad markeras SANT bara i mycket ovanliga fall:
 
-#### Flik 3: Ledamöter per grupp
+- Alla tre ordförande är jäviga mot ansökan, **eller**
+- Ingen jävfri ledamot alls kunde hittas, i någon grupp, för den ansökan (extremt sällsynt — kräver att nästan alla ledamöter är jäviga samtidigt)
 
-Översikt över alla ledamöter och deras kompetenser.
-
-### 5. Hantera osäkra fördelningar
-
-Vissa ansökningar kan markeras som "Osäker placering". Detta händer när:
-- Alla tre ordförande är jäviga mot ansökan
-- Det inte finns någon icke-jävig ledamot med relevant kompetens
-
-Dessa ansökningar kräver manuellt beslut:
-1. Filtrera Excel-filen på kolumnen "Osäker" = "JA"
-2. Granska motiveringen för varje osäker ansökan
-3. Gör manuell justering vid behov
+Läs motiveringstexten för dessa rader och gör en manuell bedömning. Resultatfilen är en vanlig Excel-fil — det går bra att ändra grupp eller föredragande direkt i den om ni behöver justera något, oavsett om raden är markerad osäker eller inte.
 
 ## Vanliga frågor
 
-### Varför hamnade ansökan X i grupp Y?
+**Varför hamnade ansökan X hos ledamot Y?**
+Läs motiveringen i resultatfilen — den förklarar kompetensmatchning, jäv och balansering för just den raden.
 
-Läs motiveringen i resultatfilen. Den förklarar:
-- Vilken kompetens-match som fanns
-- Var jäv förekom
-- Varför just denna grupp valdes
+**Kan jag köra fördelningen flera gånger?**
+Ja. Varje körning skapar en ny resultatfil (med dagens datum) i Output-mappen — tidigare resultat påverkas inte. Vanligt arbetssätt: kör en första gång, granska, justera indatafilerna (t.ex. lägg till en jävsrelation som saknades) och kör igen.
 
-### Kan jag ändra en fördelning manuellt?
-
-Ja, resultatfilen är en vanlig Excel-fil. Du kan ändra grupp eller föredragande manuellt efter behov.
-
-### Vad händer om jag kör fördelningen igen?
-
-En ny resultatfil skapas. Den gamla filen finns kvar i SharePoint-historiken.
-
-### Hur ofta kan jag köra fördelningen?
-
-Så ofta du vill. Det är vanligt att:
-1. Köra en första fördelning
-2. Granska resultatet
-3. Justera indatafilerna vid behov (t.ex. lägga till jävsrelationer)
-4. Köra igen tills resultatet är tillfredsställande
+**Vad gör jag om två körningar samma dag krockar (samma filnamn)?**
+Filen skrivs över om du kör flera gånger samma dag. Ladda ner/döp om den föregående filen manuellt innan du kör igen om du vill spara båda.
 
 ## Felsökning
 
-### "Fördelningen misslyckades"
+**Inget Teams-meddelande kommer, eller ett felmeddelande kommer**
+Kontrollera att alla tre filerna finns i Input-mappen, att de heter exakt rätt, och att kolumnrubrikerna stämmer (stor/liten bokstav och mellanslag spelar roll). Kontakta teknisk support (se nedan) om filerna ser korrekta ut men det ändå felar.
 
-Kontrollera att:
-- Alla tre filer finns i Indata-mappen
-- Filerna har korrekt format (se ovan)
-- Kolumnnamnen stämmer exakt
+**En ledamot fick inga ansökningar alls**
+Troliga orsaker: ledamoten är ordförande (tilldelas aldrig), eller är jävig mot väldigt många ansökningar.
 
-### "Inga ansökningar fördelade"
-
-Kontrollera att:
-- Ansökningsfilen innehåller data
-- Kolumnen "Ans no" finns och innehåller värden
-
-### "Ledamot X fick ingen ansökan"
-
-Detta kan bero på:
-- Ledamoten är ordförande (ordförande tilldelas aldrig ansökningar)
-- Ledamoten är jävig mot alla ansökningar
-- Ledamotens kompetens matchar inte någon ansökan
+**Fördelningen verkar ojämn**
+Systemet strävar efter jämn arbetsbelastning per ledamot, men jäv går alltid först — om en ledamot har väldigt många jävsrelationer kan den ledamoten få färre ansökningar än andra.
 
 ## Kontakt
 
-Vid tekniska problem, kontakta:
-- **Tech Sisters AB** - [kontakt@techsisters.se]
-
-Vid frågor om fördelningsregler, kontakta:
-- **Forskningsavdelningen** - [internt]
+- **Tekniska problem** (fel i knappen, Azure, Power Automate): Tech Sisters AB
+- **Frågor om fördelningsregler eller resultat:** internt inom forskningsavdelningen

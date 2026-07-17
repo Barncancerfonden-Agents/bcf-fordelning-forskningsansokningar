@@ -1,150 +1,68 @@
 # SharePoint - Fördelningscockpit
 
-Detta dokument beskriver SharePoint-komponenten av fördelningslösningen.
+Beskriver den faktiskt driftsatta SharePoint-delen av lösningen.
 
-## Översikt
+## Plats
 
-SharePoint används för:
-1. **Lagring** av indatafiler och resultat
-2. **Användargränssnitt** för att trigga fördelningen
-3. **Historik** över tidigare körningar
+- **Site:** [Forskning, utveckling & stöd](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod)
+- **Dokumentbibliotek:** Forskning och utbildning
+- **Mapp:** `FORSKNING/PK-agenten Föredragande/Fördelning ansökningar/`
 
 ## Mappstruktur
 
 ```
-Fördelning/
-├── Indata/
-│   ├── Ansökningar.xlsx
-│   ├── Ledamöter.xlsx
-│   └── Jäv.xlsx
-│
-├── Resultat/
-│   ├── Fördelning_2024-01-VT.xlsx
-│   ├── Fördelning_2024-02-HT.xlsx
-│   └── ...
-│
-└── Arkiv/
-    └── (gamla indatafiler)
+Fördelning ansökningar/
+├── Input/
+│   ├── Ansökningar.xlsx   (Excel-tabell, se docs/USER_GUIDE.md för kolumner)
+│   ├── Ledamöter.xlsx     (Excel-tabell)
+│   └── Jäv.xlsx           (Excel-tabell)
+└── Output/
+    ├── Mall_Fordelning.xlsx        (mall med tom resultattabell, rör ej)
+    └── Fordelning_YYYY-MM-DD.xlsx  (en fil per körning, skapas automatiskt av flödet)
 ```
 
-## Cockpit-sida
+- [Input-mappen](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/Forskning%20och%20utbildning/Forms/AllItems.aspx?id=%2Fsites%2FForskning%5Futveckling%5Fstod%2FForskning%20och%20utbildning%2FFORSKNING%2FPK%2Dagenten%20F%C3%B6redragande%2FF%C3%B6rdelning%20ans%C3%B6kningar%2FInput&viewid=3ee8afc5%2Deb0d%2D4566%2D9f82%2Df60d7ffe63f0)
+- [Output-mappen](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/Forskning%20och%20utbildning/Forms/AllItems.aspx?id=%2Fsites%2FForskning%5Futveckling%5Fstod%2FForskning%20och%20utbildning%2FFORSKNING%2FPK%2Dagenten%20F%C3%B6redragande%2FF%C3%B6rdelning%20ans%C3%B6kningar%2FOutput&viewid=3ee8afc5%2Deb0d%2D4566%2D9f82%2Df60d7ffe63f0)
 
-### Skapa sidan
+Indatafilerna måste vara formaterade som riktiga Excel-tabeller (Infoga → Tabell) — Power Automate-flödet läser dem via `List rows present in a table`, vilket kräver en namngiven tabell, inte bara rådata i ett kalkylblad.
 
-1. Gå till SharePoint-siten
-2. Klicka **Ny** → **Sida**
-3. Välj **Tom sida**
-4. Namnge: "Fördelning av forskningsansökningar"
+## Cockpit-sidan
 
-### Lägg till komponenter
+**URL:** [Fördelning av forskningsansökningar](https://bcfintranet.sharepoint.com/sites/Forskning_utveckling_stod/SitePages/F%C3%B6rdelning-av-forskningsans%C3%B6kningar.aspx)
 
-#### Rubriksektion
+Sidan innehåller en instruktionstext och en **Button-webbdel** ("Starta fördelning") kopplad direkt till Power Automate-flödet via knappens inbyggda åtgärd **"Kör Power Automate-flöde"**.
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                                                             │
-│   Fördelning av forskningsansökningar                       │
-│   ═══════════════════════════════════                       │
-│                                                             │
-│   Fördela inkomna ansökningar till prioriteringsgrupper     │
-│   och granskande ledamöter.                                 │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+### Så är knappen konfigurerad
 
-#### Indatafiler (Dokumentbibliotek-webbdel)
+Moderna SharePoint-knappar har (till skillnad från vad som tidigare antogs i den här dokumentationen) ingen generell "Power Automate"-webbdel att lägga till separat — istället har den vanliga **Button**-webbdelen ett åtgärdsval **"Kör Power Automate flöde"** direkt i sina inställningar:
 
-1. Lägg till webbdel **Dokumentbibliotek**
-2. Välj mappen "Indata"
-3. Ställ in:
-   - Visa: Kompakt lista
-   - Antal objekt: 10
+1. Lägg till en **Button**-webbdel på sidan
+2. Knapptext: t.ex. "Starta fördelning"
+3. Åtgärd: **Kör Power Automate flöde**
+4. Flödes-ID: den **detaljerade identifieraren**, inte den korta GUID:en från flödets URL
 
-#### Knappar (Button-webbdel)
+**Varför den detaljerade identifieraren krävs:** flödet ligger i Power Automate-miljön "Sandbox Dev", inte standardmiljön. Knappfunktionen letar bara i standardmiljön om man bara anger den korta GUID:en (t.ex. `59b46383-2080-f111-ab0f-70a8a581669b`) — resultatet blir felmeddelandet "Det gick inte att hitta flödet" trots korrekt ID och rätt användare. Lösningen: i Power Automate, öppna flödet → **Export** → **Get flow identifier**, och klistra in hela den strängen (format `v1/{miljö-id}-{flödes-id}...`) i knappens Flödes-ID-fält istället. Den bakar in miljöinformationen och fungerar oavsett vilken miljö flödet ligger i.
 
-1. Lägg till webbdel **Button**
-2. Konfigurera:
-   - Text: "Kör fördelning"
-   - Länk: [Power Automate HTTP trigger URL]
-   - Öppna i: Samma fönster
+Se `power-automate/README.md` för mer bakgrund om triggerval.
 
-*Alternativt: Använd Power Automate-knappwebbdelen om tillgänglig.*
-
-#### Resultat (Dokumentbibliotek-webbdel)
-
-1. Lägg till webbdel **Dokumentbibliotek**
-2. Välj mappen "Resultat"
-3. Ställ in:
-   - Visa: Lista
-   - Sortering: Ändrad (nyast först)
-   - Antal objekt: 5
-
-### Slutresultat
+### Instruktionstext på sidan
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                                                                             │
-│   Fördelning av forskningsansökningar                                       │
-│   ═══════════════════════════════════                                       │
-│                                                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   📁 Indatafiler                                                            │
-│   ─────────────                                                             │
-│   📄 Ansökningar.xlsx         Ändrad: 2024-01-15 09:30                      │
-│   📄 Ledamöter.xlsx           Ändrad: 2024-01-14 14:22                      │
-│   📄 Jäv.xlsx                 Ändrad: 2024-01-15 09:31                      │
-│                                                                             │
-│   ┌──────────────────────┐                                                  │
-│   │   ▶ Kör fördelning   │                                                  │
-│   └──────────────────────┘                                                  │
-│                                                                             │
-├─────────────────────────────────────────────────────────────────────────────┤
-│                                                                             │
-│   📁 Resultat                                                               │
-│   ───────────                                                               │
-│   📄 Fördelning_2024-01-15.xlsx    Ändrad: 2024-01-15 10:05                 │
-│   📄 Fördelning_2024-01-14.xlsx    Ändrad: 2024-01-14 15:30                 │
-│   📄 Fördelning_2024-01-10.xlsx    Ändrad: 2024-01-10 11:22                 │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+Klicka på knappen nedan efter att du laddat upp de tre filerna som
+behövs för att göra fördelningen. När du har klickat på knappen tar
+det ca 5-10 minuter innan fördelningen är klar. Du får då ett
+meddelande på Teams.
 ```
 
 ## Behörigheter
 
-### Rekommenderad behörighetsstruktur
-
 | Roll | Behörighet |
 |------|------------|
-| Forskningsavdelningen | Redigera (Contribute) |
-| IT-support | Fullständig kontroll |
+| Forskningsavdelningen | Redigera (Contribute) på Input/Output-mapparna, samt köråtkomst till Power Automate-flödet (Share → Run only i Power Automate — annars ger knappen ett missvisande "hittade inte flödet"-fel istället för ett behörighetsfel) |
+| IT-support / utvecklare | Fullständig kontroll, ägare av flödet |
 | Övriga | Ingen åtkomst |
-
-### Konfigurera behörigheter
-
-1. Gå till mappen "Fördelning"
-2. Klicka **...** → **Hantera åtkomst**
-3. Avbryt ärvda behörigheter
-4. Lägg till gruppen "Forskningsavdelningen" med Redigera-behörighet
 
 ## Underhåll
 
-### Rensa gamla resultat
-
-Flytta resultatfiler äldre än 2 år till Arkiv-mappen.
-
-### Uppdatera indatafiler
-
-Se till att rätt filer ligger i Indata-mappen före varje körning.
-Gamla indatafiler kan flyttas till Arkiv.
-
-## Alternativ: Power Apps-gränssnitt
-
-För ett mer avancerat gränssnitt kan en Power Apps Canvas App byggas:
-
-- Filuppladdning med validering
-- Progress-indikator under körning
-- Inline-visning av resultat
-- Historik med sökfunktion
-
-*Detta är en framtida förbättring om behov finns.*
+- **Uppdatera indatafiler:** skriv över filerna i Input-mappen med samma filnamn inför varje körning. Gamla resultatfiler i Output skrivs aldrig över (varje körning får ett eget, datumstämplat filnamn) — arkivera/städa manuellt vid behov.
+- **Rör inte `Mall_Fordelning.xlsx`** i Output-mappen — den kopieras av flödet vid varje körning och måste ha exakt samma tabellstruktur som flödet förväntar sig (se `power-automate/README.md`).
